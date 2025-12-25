@@ -4,23 +4,28 @@ import "./Sidebar.css";
 const Sidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
 
-  return <>
- 
-  <div className={`sidebar ${collapsed ? "collapsed" : ""}`}>
-      
-  
+  const projectsData = [
+    { id: 1, name: "Plantwise" },
+    { id: 2, name: "CampusEats" },
+    { id: 3, name: "DeepFake" },
+  ];
+
+  return (
+    <div className={`sidebar ${collapsed ? "collapsed" : ""}`}>
       <div className="top">
         <div className="logo">
           <div className="logo-icon">C</div>
           {!collapsed && <span>Collabix</span>}
         </div>
 
-        <button className="collapse-btn" onClick={() => setCollapsed(!collapsed)}>
-        {collapsed ? "›" : "‹"}
+        <button
+          className="collapse-btn"
+          onClick={() => setCollapsed(!collapsed)}
+        >
+          {collapsed ? "›" : "‹"}
         </button>
       </div>
 
-     
       <nav className="nav">
         <div className="nav-item">
           🟦 {!collapsed && <span>Dashboard</span>}
@@ -36,29 +41,19 @@ const Sidebar = () => {
         </div>
       </nav>
 
-    
       {!collapsed && (
         <div className="projects">
           <p className="projects-title">PROJECTS</p>
 
-          <div className="project">
-            <span className="dot purple"></span>
-            Website Redesign
-          </div>
-
-          <div className="project">
-            <span className="dot green"></span>
-            Mobile App MVP
-          </div>
-
-          <div className="project">
-            <span className="dot orange"></span>
-            Marketing Campaign
-          </div>
+          {projectsData.map((project) => (
+            <div className="project" key={project.id}>
+              <span className="dot"></span>
+              {project.name}
+            </div>
+          ))}
         </div>
       )}
 
-      
       {!collapsed && (
         <div className="user">
           <div className="avatar">A</div>
@@ -68,10 +63,8 @@ const Sidebar = () => {
           </div>
         </div>
       )}
-    </div></>
-   
-    
-  
+    </div>
+  );
 };
 
 export default Sidebar;

@@ -97,11 +97,10 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
+  background: #6c63ff;
 }
 
-.dot.purple { background: #6c63ff; }
-.dot.green { background: #22c55e; }
-.dot.orange { background: #f59e0b; }
+
 
 .user {
   margin-top: auto;
