@@ -1,14 +1,15 @@
-import Board from './Components/board.jsx'
+import Board from './Components/Board.jsx'
 import './App.css'
 import Header from './Components/Header.jsx'
-
+import  Activity from './Components/Activity.jsx' 
 function App() {
   
 
   return (
     <>
-      <Header/>
-      <Board/>
+    <Activity/>
+      {/* <Header/>
+      <Board/> */}
     </>
   )
 }
