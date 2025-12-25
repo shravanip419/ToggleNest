@@ -4,8 +4,9 @@ import "./Sidebar.css";
 const Sidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
 
-  return (
-    <div className={`sidebar ${collapsed ? "collapsed" : ""}`}>
+  return <>
+ 
+  <div className={`sidebar ${collapsed ? "collapsed" : ""}`}>
       
   
       <div className="top">
@@ -67,8 +68,10 @@ const Sidebar = () => {
           </div>
         </div>
       )}
-    </div>
-  );
+    </div></>
+   
+    
+  
 };
 
 export default Sidebar;
