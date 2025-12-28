@@ -9,8 +9,7 @@
   position: fixed;
   top: 0;
   left: 0;
- 
-  transition: width 0.25s ease;
+ transition: width 0.25s ease;
 }
 
 .sidebar.collapsed {
