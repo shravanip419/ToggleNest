@@ -15,6 +15,10 @@ dist
 dist-ssr
 *.local
 
+# Environment files
+.env
+.env.*
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
@@ -24,6 +28,3 @@ dist-ssr
 *.ntvs*
 *.njsproj
 *.sln
-
-# Allow env file
-!.env
