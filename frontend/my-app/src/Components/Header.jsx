@@ -1,6 +1,24 @@
 import "./Header.css";
+import { useState, useEffect } from "react"; 
 
 const Header = () => {
+  
+  const [isDark, setIsDark] = useState(false);
+  
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    const darkMode = savedTheme === 'dark';
+    setIsDark(darkMode);
+    document.documentElement.classList.toggle('dark', darkMode);
+  }, []);
+
+  const toggleTheme = () => {
+    const newTheme = !isDark ? 'dark' : 'light';
+    setIsDark(!isDark);
+    localStorage.setItem('theme', newTheme);
+    document.documentElement.classList.toggle('dark');
+  };
+
   return (
     <div className="header">
       <div className="header-left">
@@ -12,6 +30,11 @@ const Header = () => {
           <span className="search-icon">🔍</span>
           <input type="text" placeholder="Search...." />
         </div>
+
+       
+        <button className="theme-toggle-header" onClick={toggleTheme} title="Toggle Theme">
+          {isDark ? '☀️' : '🌙'}
+        </button>
 
         <div className="notification">
           🔔

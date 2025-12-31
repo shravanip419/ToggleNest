@@ -56,7 +56,9 @@ const Board = () => {
 
       <div className="main-section">
         <Header />
-
+        
+        {/* REMOVED THEME TOGGLE - CLEAN NOW */}
+        
         <DragDropContext onDragEnd={onDragEnd}>
           <div className="board">
             <Column
