@@ -7,6 +7,7 @@ const Header = () => {
         <h2>Plantwise</h2>
         <p>Complete overhaul of the company website</p>
       </div>
+
       <div className="header-right">
         <div className="search-box">
           <span className="search-icon">🔍</span>

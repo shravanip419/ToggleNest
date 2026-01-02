@@ -6,8 +6,8 @@ import { IoIosNotificationsOutline } from "react-icons/io";
 import { MdColorLens } from "react-icons/md";
 import { MdOutlineSecurity } from "react-icons/md";
 import { MdOutlineContactSupport } from "react-icons/md";
-import Sidebar from './Sidebar';
-import Header from './Header';
+import Sidebar from '../Components/Sidebar';
+import Header from '../Components/Header';
 
 function Setting()
 {

@@ -1,6 +1,6 @@
 import './Activity.css';
-import Sidebar from './Sidebar';
-import Header from './Header';  
+import Sidebar from '../Components/Sidebar';
+import Header from '../Components/Header';  
 
 
 

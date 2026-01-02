@@ -1,8 +1,8 @@
 import "./Board.css";
 import { useEffect, useState } from "react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
-import Sidebar from "./Sidebar";
-import Header from "./Header";
+import Sidebar from "../Components/Sidebar";
+import Header from "../Components/Header";
 import TaskForm from "./TaskForm";
 
 const Board = () => {
