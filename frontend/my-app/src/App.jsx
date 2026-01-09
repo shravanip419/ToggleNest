@@ -1,40 +1,46 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import DashboardLayout from "./components/DashboardLayout";
-
+import { Routes, Route, useLocation } from "react-router-dom";
+import Sidebar from "./Components/Sidebar";
+import Header from "./Components/Header";
+import Board from "./pages/Board.jsx";
+import Activity from "./pages/Activity.jsx";
+import Setting from "./pages/Setting.jsx";
+import Profile from "./pages/Profile.jsx";
 import Hero from "./pages/Hero";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
-
 import Home from "./pages/Home";
-import Board from "./pages/Board";
-import Activity from "./pages/Activity";
-import Setting from "./pages/Setting";
-import Profile from "./pages/Profile";
-
 import "./App.css";
 
 function App() {
+  const location = useLocation();
+  
+  // Routes that should NOT show the Sidebar/Header
+  const isAuthPage = ["/", "/login", "/signup"].includes(location.pathname);
+
   return (
-    <BrowserRouter>
-      <Routes>
-        {/* ---------- PUBLIC / AUTH ---------- */}
-        <Route path="/" element={<Hero />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-
-        {/* ---------- DASHBOARD (PROTECTED LAYOUT) ---------- */}
-        <Route element={<DashboardLayout />}>
-          <Route path="/home" element={<Home />} />
-          <Route path="/board" element={<Board />} />
-          <Route path="/activity" element={<Activity />} />
-          <Route path="/settings" element={<Setting />} />
-          <Route path="/settings/profile" element={<Profile />} />
-        </Route>
-
-        {/* ---------- FALLBACK ---------- */}
-        <Route path="*" element={<Navigate to="/login" />} />
-      </Routes>
-    </BrowserRouter>
+    <div className={isAuthPage ? "auth-root" : "app"}>
+      {!isAuthPage && <Sidebar />}
+      
+      <main className={isAuthPage ? "full-content" : "main"}>
+        {!isAuthPage && <Header />}
+        
+        {/* Container for the actual page content */}
+        <div className={isAuthPage ? "" : "page-content"}>
+          <Routes>
+            <Route path="/" element={<Hero />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+            
+            {/* Dashboard Routes */}
+            <Route path="/home" element={<Home />} />
+            <Route path="/board" element={<Board />} />
+            <Route path="/activity" element={<Activity />} />
+            <Route path="/settings" element={<Setting />} />
+            <Route path="/settings/profile" element={<Profile />} />
+          </Routes>
+        </div>
+      </main>
+    </div>
   );
 }
 
