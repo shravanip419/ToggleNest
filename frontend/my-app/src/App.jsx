@@ -2,7 +2,6 @@ import { Routes, Route, useLocation } from "react-router-dom";
 
 import Sidebar from "./Components/Sidebar";
 import Header from "./Components/Header";
-
 import Hero from "./pages/Hero";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
