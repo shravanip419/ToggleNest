@@ -1,6 +1,7 @@
 import { useState } from "react";
-import "./Sidebar.css";
 import { Link } from "react-router-dom";
+import "./Sidebar.css";
+
 
 const Sidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
@@ -61,13 +62,15 @@ const Sidebar = () => {
       )}
 
       {!collapsed && (
-        <div className="user">
-          <div className="avatar">A</div>
-          <div>
-            <p className="name">Mern</p>
-            <p className="email">success.com</p>
-          </div>
-        </div>
+          <div className="user">
+    <span className="avatar">A</span>
+
+    <div className="user-info">
+      <p className="name">Mern</p>
+      <p className="email">success.com</p>
+    </div>
+  </div>
+
       )}
     </div>
   );
