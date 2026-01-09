@@ -1,5 +1,17 @@
 /* ROOT */
 .profile-root {
+  background: var(--bg-main);
+  color: var(--text-main);
+}
+
+.profile-card,
+.worked-on-box,
+.places .empty-state {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+}
+
+.profile-root {
   background: #f7f8fa;
 }
 

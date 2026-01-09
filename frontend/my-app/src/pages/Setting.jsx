@@ -21,9 +21,9 @@ import { IoIosNotificationsOutline } from "react-icons/io";
 import Sidebar from "../Components/Sidebar";
 import Header from "../Components/Header";
 
-function Setting() {
+const Setting =({title, subtitle})=> {
   const location = useLocation();
-  const isRootSettings = location.pathname === "/setting";
+  const isRootSettings = location.pathname === "/settings";
   const [currentView, setCurrentView] = useState("main");
 
   // Notification State
@@ -220,8 +220,8 @@ function Setting() {
     return (
       <div className="settings-dashboard">
         <div className="settings-header">
-          <h1>Settings</h1>
-          <p>Customize your ToggleNest experience</p>
+          <h1>{title}</h1>
+          <p>{subtitle}</p>
         </div>
 
         <Link to="profile" className="settings-card link-reset">
@@ -261,9 +261,7 @@ function Setting() {
 
   return (
     <div className="activity-layout">
-      <Sidebar />
       <div className="main-section">
-        <Header />
         {isRootSettings ? renderContent() : <Outlet />}
       </div>
     </div>

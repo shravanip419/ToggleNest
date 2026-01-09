@@ -1,8 +1,7 @@
 import "./Header.css";
 import { useState, useEffect } from "react"; 
 
-const Header = () => {
-  
+const Header = ({title, subtitle}) => {
   const [isDark, setIsDark] = useState(false);
   
   useEffect(() => {
@@ -20,36 +19,27 @@ const Header = () => {
   };
 
   return (
-    <div className="header">
-      <div className="header-left">
-        <h2>Plantwise</h2>
-        <p>Complete overhaul of the company website</p>
+    <header className="topbar">
+      <div className="header-info">
+        <h1>{title}</h1>
+        <p className="sub">{subtitle}</p>
       </div>
 
       <div className="header-right">
         <div className="search-box">
           <span className="search-icon">🔍</span>
-          <input type="text" placeholder="Search...." />
+          <input type="text" className="search-input" placeholder="Search tasks..." />
         </div>
 
-       
-        <button className="theme-toggle-header" onClick={toggleTheme} title="Toggle Theme">
+        <button className="theme-btn" onClick={toggleTheme}>
           {isDark ? '☀️' : '🌙'}
         </button>
 
-        <div className="notification">
-          🔔
-          <span className="dot"></span>
-        </div>
-
-        <div className="profile">
-          <img
-            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT2Y9EWzFriZ9_9L3xd6uHv3CWJBBuwu6f9PA&s"
-            alt="profile"
-          />
+        <div className="notification-btn">
+          🔔<span className="notif-dot"></span>
         </div>
       </div>
-    </div>
+    </header>
   );
 };
 

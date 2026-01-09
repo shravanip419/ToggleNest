@@ -1,8 +1,6 @@
 import "./Board.css";
 import { useEffect, useState } from "react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
-import Sidebar from "../Components/Sidebar";
-import Header from "../Components/Header";
 import TaskForm from "./TaskForm";
 
 const Board = () => {
@@ -19,15 +17,12 @@ const Board = () => {
 
   const onDragEnd = async (result) => {
     if (!result.destination) return;
-
     const { draggableId, destination } = result;
     const newStatus = destination.droppableId;
 
     setTasks(prev =>
       prev.map(task =>
-        task._id === draggableId
-          ? { ...task, status: newStatus }
-          : task
+        task._id === draggableId ? { ...task, status: newStatus } : task
       )
     );
 
@@ -44,55 +39,35 @@ const Board = () => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(taskData)
     });
-
     const savedTask = await res.json();
     setTasks(prev => [...prev, savedTask]);
     setShowForm(false);
   };
 
   return (
-    <div className="activity-layout">
-      <Sidebar />
-
-      <div className="main-section">
-        <Header />
-        
-        {/* REMOVED THEME TOGGLE - CLEAN NOW */}
-        
-        <DragDropContext onDragEnd={onDragEnd}>
-          <div className="board">
-            <Column
-              title="To Do"
-              status="todo"
-              tasks={tasks}
-              onAdd={() => {
-                setFormStatus("todo");
-                setShowForm(true);
-              }}
-            />
-
-            <Column
-              title="In Progress"
-              status="in-progress"
-              tasks={tasks}
-              onAdd={() => {
-                setFormStatus("in-progress");
-                setShowForm(true);
-              }}
-            />
-
-            <Column
-              title="Done"
-              status="done"
-              tasks={tasks}
-              onAdd={() => {
-                setFormStatus("done");
-                setShowForm(true);
-              }}
-            />
-          </div>
-        </DragDropContext>
-      </div>
+    <div className="board-wrapper">
+      <DragDropContext onDragEnd={onDragEnd}>
+        <div className="board">
+          <Column
+            title="To Do"
+            status="todo"
+            tasks={tasks}
+            onAdd={() => { setFormStatus("todo"); setShowForm(true); }}
+          />
+          <Column
+            title="In Progress"
+            status="in-progress"
+            tasks={tasks}
+            onAdd={() => { setFormStatus("in-progress"); setShowForm(true); }}
+          />
+          <Column
+            title="Done"
+            status="done"
+            tasks={tasks}
+            onAdd={() => { setFormStatus("done"); setShowForm(true); }}
+          />
+        </div>
+      </DragDropContext>
 
       {showForm && (
         <TaskForm
@@ -107,15 +82,10 @@ const Board = () => {
 
 const Column = ({ title, status, tasks, onAdd }) => {
   const filteredTasks = tasks.filter(task => task.status === status);
-
   return (
     <Droppable droppableId={status}>
       {(provided) => (
-        <div
-          className="column"
-          ref={provided.innerRef}
-          {...provided.droppableProps}
-        >
+        <div className="column" ref={provided.innerRef} {...provided.droppableProps}>
           <div className="column-header">
             <h3>{title}</h3>
             <div className="column-actions">
@@ -123,25 +93,15 @@ const Column = ({ title, status, tasks, onAdd }) => {
               <button className="add-btn" onClick={onAdd}>+</button>
             </div>
           </div>
-
           {filteredTasks.map((task, index) => (
-            <Draggable
-              key={task._id}
-              draggableId={task._id}
-              index={index}
-            >
+            <Draggable key={task._id} draggableId={task._id} index={index}>
               {(provided) => (
-                <div
-                  ref={provided.innerRef}
-                  {...provided.draggableProps}
-                  {...provided.dragHandleProps}
-                >
+                <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
                   <Card task={task} />
                 </div>
               )}
             </Draggable>
           ))}
-
           {provided.placeholder}
         </div>
       )}
