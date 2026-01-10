@@ -3,6 +3,9 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function Login() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
   const navigate = useNavigate();
   const pupilsRef = useRef([]);
 
@@ -52,18 +55,32 @@ export default function Login() {
     if (!focusField && !showPassword) lockEyes(0);
   }, [focusField, showPassword]);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+ const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    shapesRef.current.forEach((shape) => {
-        shape.classList.remove("shake-animation");
-        shape.classList.add("nod-animation");
-        setTimeout(() => shape.classList.remove("nod-animation"), 1000);
+  try {
+    const res = await fetch("http://localhost:5000/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
     });
 
-    // ✅ REDIRECT TO BOARD
-    setTimeout(() => navigate("/board"), 1200);
-  };
+    const data = await res.json();
+
+    if (!res.ok) {
+      alert(data.message || "Login failed");
+      return;
+    }
+
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("user", JSON.stringify(data.user));
+
+    navigate("/board");
+  } catch (err) {
+    alert("Server error");
+  }
+};
+
 
   return (
     <div className="login-page">
@@ -105,20 +122,26 @@ export default function Login() {
             <input
               type="email"
               placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               onFocus={() => setFocusField("email")}
               onBlur={() => setFocusField(null)}
               required
             />
+
 
             <label>Password</label>
             <div style={{ position: "relative" }}>
               <input
                 type={showPassword ? "text" : "password"}
                 placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 onFocus={() => setFocusField("password")}
                 onBlur={() => setFocusField(null)}
                 required
               />
+
 
               {/* SVG EYE – extreme right */}
               <span
