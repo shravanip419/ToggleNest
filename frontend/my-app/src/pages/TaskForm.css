@@ -62,7 +62,7 @@
 .task-form-body select,
 .task-form-body textarea {
   padding: 12px;
-  border-radius: 10px; /* Standard brand rounding */
+  border-radius: 10px; 
   border: 1px solid #e2e8f0;
   font-size: 14px;
   outline: none;
