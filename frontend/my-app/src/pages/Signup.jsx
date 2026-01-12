@@ -1,11 +1,14 @@
 import "./Login.css";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import api from "../api/axios"
+import { useAuth } from "../context/AuthContext";
 
 export default function Signup() {
   const navigate = useNavigate();
   const pupilsRef = useRef([]);
   const shapesRef = useRef([]);
+  const { login } = useAuth();
 
   const [focusField, setFocusField] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
@@ -66,44 +69,26 @@ export default function Signup() {
 
   /* Submit */
   const handleSubmit = async (e) => {
-  e.preventDefault();
-
-  try {
-    const res = await fetch(
-      "http://localhost:5000/api/auth/signup",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      }
-    );
-
-    const text = await res.text();
-    let data;
+    e.preventDefault();
 
     try {
-      data = JSON.parse(text);
-    } catch {
-      console.error("HTML response:", text);
-      alert("Wrong API route. Check backend URL.");
-      return;
+      const { data } = await api.post("/auth/signup", {
+        fullName: formData.fullName,
+        username: formData.username,
+        email: formData.email,
+        password: formData.password,
+      });
+
+      login(data);
+
+      navigate("/home");
+    } catch (err) {
+      alert(
+        err.response?.data?.message || "Signup failed"
+      );
     }
+  };
 
-    if (!res.ok) {
-      alert(data.message || "Signup failed");
-      return;
-    }
-
-    alert("Signup successful 🎉");
-    navigate("/board");
-
-  } catch (err) {
-    console.error(err);
-    alert("Server not reachable 💀");
-  }
-};
 
 
   return (

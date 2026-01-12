@@ -6,10 +6,6 @@ import taskRoutes from "./routes/taskRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import projectRoutes from "./routes/projectRoutes.js";
 
-
-
-
-
 dotenv.config();
 
 const app = express();
