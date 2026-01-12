@@ -10,6 +10,7 @@ export default function Login() {
 
   const navigate = useNavigate();
   const { login } = useAuth();
+  // const { login } = useAuth();
   const pupilsRef = useRef([]);
 
   const [focusField, setFocusField] = useState(null);
@@ -58,6 +59,7 @@ export default function Login() {
     if (!focusField && !showPassword) lockEyes(0);
   }, [focusField, showPassword]);
 
+  // const handleSubmit = async (e) => {
   const handleSubmit = async (e) => {
   e.preventDefault();
 
