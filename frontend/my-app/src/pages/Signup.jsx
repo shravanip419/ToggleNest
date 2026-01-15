@@ -78,14 +78,15 @@ export default function Signup() {
         email: formData.email,
         password: formData.password,
       });
+      
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+      }
 
       login(data);
-
       navigate("/home");
     } catch (err) {
-      alert(
-        err.response?.data?.message || "Signup failed"
-      );
+      alert(err.response?.data?.message || "Signup failed");
     }
   };
 

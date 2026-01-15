@@ -61,25 +61,19 @@ export default function Login() {
 
   // const handleSubmit = async (e) => {
   const handleSubmit = async (e) => {
-  e.preventDefault();
-
-  try {
-    const { data } = await api.post("/auth/login", {
-      email,
-      password,
-    });
-
-    login(data);
-    navigate("/home");
-  } catch (err) {
-    alert(
-      err.response?.data?.message || "Login failed"
-    );
-  }
-};
-
-
-
+    e.preventDefault();
+    try {
+      const { data } = await api.post("/auth/login", {
+        email,
+        password,
+      });
+      localStorage.setItem("token", data.token); 
+      login(data);
+      navigate("/home");
+    } catch (err) {
+      alert(err.response?.data?.message || "Login failed");
+    }
+  };
   return (
     <div className="login-page">
       <div className="login-container">

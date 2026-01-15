@@ -10,6 +10,7 @@ import Board from "./pages/Board";
 import Activity from "./pages/Activity";
 import Setting from "./pages/Setting";
 import Profile from "./pages/Profile";
+import Projects from "./pages/Projects";
 
 import "./App.css";
 
@@ -30,6 +31,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/home" element={<Home />} />
+            <Route path="/board" element={<Projects/>}/>
             <Route path="/board/:projectId" element={<Board />} />
             <Route path="/activity" element={<Activity />} />
             <Route path="/settings" element={<Setting />} />
