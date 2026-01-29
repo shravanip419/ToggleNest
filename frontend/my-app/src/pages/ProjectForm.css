@@ -24,3 +24,37 @@
   border-radius: 6px;
   cursor: pointer;
 }
+@media (max-width: 1024px) {
+
+  .project-form input {
+    font-size: 14px;
+    padding: 8px 10px;
+  }
+
+  .project-form-actions button {
+    font-size: 13px;
+    padding: 6px;
+  }
+}
+@media (max-width: 768px) {
+
+  .project-form {
+    gap: 10px;
+  }
+
+  .project-form input {
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+
+  .project-form-actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .project-form-actions button {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+  }
+}

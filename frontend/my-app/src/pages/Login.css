@@ -14,7 +14,8 @@
   min-height: 100vh;
   height: auto !important;
   display: flex;
-  width: 900px;
+  max-width: 900px;
+  width: 100%;
   background: #fff;
   border-radius: 20px;
   overflow: hidden;
@@ -455,4 +456,62 @@ input {
   font-size: 14px;
   box-shadow: 0 4px 10px rgba(0,0,0,0.05);
 
+}
+@media (max-width: 1024px) {
+
+  .login-container {
+    width: 90%;
+    height: auto;
+    min-height: auto;
+  }
+
+  .form-section,
+  .login-left {
+    padding: 40px;
+  }
+
+  .shapes-container {
+    width: 220px;
+    height: 220px;
+  }
+}
+@media (max-width: 768px) {
+
+  .login-page {
+    padding: 20px;
+    align-items: flex-start;
+  }
+
+  .login-container {
+    flex-direction: column;
+    width: 100%;
+    border-radius: 16px;
+  }
+
+  /* Hide illustration side */
+  .illustration-section,
+  .login-right {
+    display: none;
+  }
+
+  /* Form becomes full width */
+  .form-section,
+  .login-left {
+    width: 100%;
+    padding: 28px 24px;
+  }
+
+  h2 {
+    font-size: 22px;
+  }
+
+  .subtitle {
+    font-size: 14px;
+  }
+
+  .login-btn,
+  .signin {
+    font-size: 14px;
+    padding: 12px;
+  }
 }

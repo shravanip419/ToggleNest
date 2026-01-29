@@ -32,3 +32,20 @@
 .task-list {
   min-height: 100px;
 }
+@media (max-width: 1024px) {
+
+  .board-wrapper {
+    padding: 20px;
+  }
+
+  .board {
+    gap: 16px;
+    overflow-x: auto;
+    padding-bottom: 10px;
+  }
+
+  .column {
+    min-width: 300px;
+    width: 300px;
+  }
+}

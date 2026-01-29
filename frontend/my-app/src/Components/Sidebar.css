@@ -158,3 +158,48 @@
   opacity: 0;
   pointer-events: none;
 }
+
+@media (max-width: 768px) {
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: -100%;
+    height: 100vh;
+    width: 260px;
+    z-index: 1000;
+    transition: left 0.3s ease;
+  }
+
+  /* When sidebar is open */
+  .sidebar.open {
+    left: 0;
+  }
+
+  /* Optional overlay */
+  .sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 900;
+    display: none;
+  }
+
+  .sidebar-overlay.active {
+    display: block;
+  }
+
+  /* Collapse mode not needed on mobile */
+  .sidebar.collapsed {
+    width: 260px;
+  }
+
+  .sidebar.collapsed span,
+  .sidebar.collapsed .projects,
+  .sidebar.collapsed .profile-info {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+}
+

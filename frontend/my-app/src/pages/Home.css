@@ -301,3 +301,66 @@
 .dark .panel-header a {
   color: #818cf8;
 }
+@media (max-width: 1024px) {
+
+  .home {
+    padding: 24px;
+  }
+
+  /* Stats: 2 per row */
+  .stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Main layout stacks */
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Projects stack */
+  .project-grid {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 768px) {
+
+  .home {
+    padding: 16px;
+  }
+
+  .dashboard {
+    gap: 24px;
+  }
+
+  /* Stats: 1 per row */
+  .stats {
+    grid-template-columns: 1fr;
+  }
+
+  .stat-card {
+    padding: 18px;
+  }
+
+  .stat-info h1 {
+    font-size: 26px;
+  }
+
+  .panel {
+    padding: 20px;
+    border-radius: 18px;
+  }
+
+  .panel-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .activity-item {
+    gap: 10px;
+  }
+
+  .activity-text {
+    font-size: 13px;
+  }
+}
