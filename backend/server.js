@@ -19,9 +19,15 @@ app.use(
       "http://localhost:5173",
       "https://togglenest-lake.vercel.app"
     ],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
   })
 );
+
+// Handle preflight requests
+app.options("*", cors());
+
 
 
 
