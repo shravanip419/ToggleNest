@@ -9,33 +9,36 @@ router.get("/", auth, async (req, res) => {
   try {
     const { projectId } = req.query;
 
-    let filter = {};
+    // Get all project IDs owned by this user
+    const userProjects = await Project.find({ user: req.user.id }).select("_id");
+    const userProjectIds = userProjects.map(p => p._id);
+
+    let filter = {
+      $or: [
+        { "user.id": req.user.id },
+        { projectId: { $in: userProjectIds } }
+      ]
+    };
 
     if (projectId) {
-      filter.projectId = projectId;
+      filter = {
+        projectId,
+        $or: [
+          { "user.id": req.user.id },
+          { projectId: { $in: userProjectIds } }
+        ]
+      };
     }
 
     const activities = await Activity
       .find(filter)
       .sort({ createdAt: -1 })
+      .populate("projectId", "name")
       .lean();
-
-    const projectIds = activities.map(a => a.projectId);
-
-    const projects = await Project.find({
-      _id: { $in: projectIds }
-    });
-
-    const projectMap = {};
-
-    projects.forEach(p => {
-      projectMap[p._id.toString()] = p.name;
-    });
 
     const result = activities.map(a => ({
       ...a,
-      projectName:
-        projectMap[a.projectId?.toString()] || "Unknown Project"
+      projectName: a.projectId?.name || "General"
     }));
 
     res.json(result);
@@ -51,13 +54,22 @@ router.get("/recent", auth, async (req, res) => {
   try {
     const limit = Number(req.query.limit) || 5;
 
-    const activities = await Activity.find()
+    const userProjects = await Project.find({ user: req.user.id }).select("_id");
+    const userProjectIds = userProjects.map(p => p._id);
+
+    const activities = await Activity.find({
+      $or: [
+        { "user.id": req.user.id },
+        { projectId: { $in: userProjectIds } }
+      ]
+    })
       .sort({ createdAt: -1 })
       .limit(limit)
-      .populate("projectId", "name"); // 👈 get project name
+      .populate("projectId", "name")
+      .lean();
 
     const formatted = activities.map(a => ({
-      ...a._doc,
+      ...a,
       projectName: a.projectId?.name || "General",
     }));
 
@@ -68,5 +80,5 @@ router.get("/recent", auth, async (req, res) => {
   }
 });
 
-
 export default router;
+

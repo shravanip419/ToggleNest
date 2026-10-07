@@ -1,5 +1,13 @@
 {
+  "name": "togglenest-frontend",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "npm --prefix my-app run dev",
+    "build": "npm --prefix my-app run build",
+    "preview": "npm --prefix my-app run preview"
+  },
   "dependencies": {
     "axios": "^1.13.2"
   }
 }
+

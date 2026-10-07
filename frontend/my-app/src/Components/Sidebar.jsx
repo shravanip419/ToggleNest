@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import "./Sidebar.css";
 import api from "../api/axios";
+import { useAuth } from "../context/AuthContext";
 
 import dashboardIcon from "../assets/Dashboard.png";
 import activityIcon from "../assets/Activity.png";
@@ -12,6 +13,8 @@ import ProjectForm from "../pages/ProjectForm";
 
 const Sidebar = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { logout } = useAuth();
 
   const isExpandedRoute =
     location.pathname.startsWith("/home") ||
@@ -51,22 +54,26 @@ const Sidebar = () => {
     setManualToggle(true);
   };
 
-  // Create project (AUTH SAFE)
-  const saveProject = async (name) => {
+  const saveProject = async (projectData) => {
     try {
-      const { data } = await api.post("/projects", { name });
-      setProjects(prev => [...prev, data]);
+      const { data } = await api.post("/projects", projectData);
+      setProjects(prev => [data, ...prev]);
       setShowProjectForm(false);
     } catch (err) {
       console.error("Create project failed", err);
     }
   };
 
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
+
   return (
     <aside className={`sidebar ${collapsed ? "collapsed" : ""}`}>
       {/* TOP */}
       <div className="sidebar-top">
-        <div className="brand">
+        <div className="brand" onClick={() => navigate("/home")} style={{ cursor: "pointer" }}>
           <div className="logo">T</div>
           {!collapsed && <span>ToggleNest</span>}
         </div>
@@ -88,7 +95,6 @@ const Sidebar = () => {
           {!collapsed && <span>Projects</span>}
         </NavLink>
 
-
         <NavLink to="/activity" className="nav-item">
           <img src={activityIcon} alt="Activity" />
           {!collapsed && <span>Activity</span>}
@@ -108,19 +114,21 @@ const Sidebar = () => {
             <button
               className="add-project-btn"
               onClick={() => setShowProjectForm(true)}
+              title="Add Project"
             >
               ＋
             </button>
           </div>
 
           {showProjectForm && (
-            <ProjectForm
-              onSave={saveProject}
-              onCancel={() => setShowProjectForm(false)}
-            />
+            <div style={{ padding: "8px 0" }}>
+              <ProjectForm
+                onSave={saveProject}
+                onCancel={() => setShowProjectForm(false)}
+              />
+            </div>
           )}
 
-          {/* ✅ IMPORTANT CHANGE HERE */}
           {projects.map(project => (
             <NavLink
               key={project._id}
@@ -129,14 +137,41 @@ const Sidebar = () => {
                 `project-item ${isActive ? "active" : ""}`
               }
             >
-              <span className="dot blue" />
-              {project.name}
+              <span className={`dot ${project.color || "blue"}`} />
+              <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                {project.name}
+              </span>
             </NavLink>
           ))}
         </div>
       )}
+
+      {/* BOTTOM LOGOUT */}
+      <div style={{ marginTop: "auto", padding: "12px", borderTop: "1px solid rgba(0,0,0,0.06)" }}>
+        <button
+          onClick={handleLogout}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "10px",
+            width: "100%",
+            background: "none",
+            border: "none",
+            cursor: "pointer",
+            color: "#ef4444",
+            fontSize: "14px",
+            fontWeight: "500",
+            padding: "8px"
+          }}
+          title="Log out"
+        >
+          <span>🚪</span>
+          {!collapsed && <span>Log out</span>}
+        </button>
+      </div>
     </aside>
   );
 };
 
 export default Sidebar;
+

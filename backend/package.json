@@ -1,5 +1,11 @@
 {
+  "name": "togglenest-backend",
+  "version": "1.0.0",
   "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
   "dependencies": {
     "axios": "^1.13.2",
     "bcryptjs": "^3.0.3",
@@ -12,3 +18,4 @@
     "multer": "^2.0.2"
   }
 }
+

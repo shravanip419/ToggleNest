@@ -2,6 +2,7 @@ import { Routes, Route, useLocation } from "react-router-dom";
 
 import Sidebar from "./Components/Sidebar";
 import Header from "./Components/Header";
+import ProtectedRoute from "./Components/ProtectedRoute";
 import Hero from "./pages/Hero";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -28,21 +29,23 @@ function App() {
 
         <div className={isAuthPage ? "" : "page-content"}>
           <Routes>
-            {/* AUTH / LANDING */}
+            {/* PUBLIC / AUTH */}
             <Route path="/" element={<Hero />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
 
-            {/* MAIN APP */}
-            <Route path="/home" element={<Home />} />
-            <Route path="/board" element={<Projects />} />
-            <Route path="/board/:projectId" element={<Board />} />
-            <Route path="/activity" element={<Activity />} />
+            {/* PROTECTED APP ROUTES */}
+            <Route element={<ProtectedRoute />}>
+              <Route path="/home" element={<Home />} />
+              <Route path="/board" element={<Projects />} />
+              <Route path="/board/:projectId" element={<Board />} />
+              <Route path="/activity" element={<Activity />} />
 
-            {/* SETTINGS (NESTED ROUTES) */}
-            <Route path="/settings" element={<Setting title="Settings" subtitle="Manage your account" />}>
-              <Route path="profile" element={<Profile />} />
-              <Route path="security/update-password" element={<UpdatePassword />} />
+              {/* SETTINGS (NESTED ROUTES) */}
+              <Route path="/settings" element={<Setting title="Settings" subtitle="Manage your account" />}>
+                <Route path="profile" element={<Profile />} />
+                <Route path="security/update-password" element={<UpdatePassword />} />
+              </Route>
             </Route>
           </Routes>
         </div>
@@ -52,3 +55,4 @@ function App() {
 }
 
 export default App;
+

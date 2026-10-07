@@ -16,19 +16,17 @@ router.get("/dashboard", auth, async (req, res) => {
   }
 });
 
-/* GET ALL TASKS (DASHBOARD) */
+/* GET ALL USER TASKS (DASHBOARD) */
 router.get("/dashboard/all", auth, async (req, res) => {
   try {
-    const tasks = await Task.find()
-      .populate("project")
-      .populate("user");
+    const tasks = await Task.find({ user: req.user.id })
+      .populate("project", "name")
+      .populate("user", "name username avatar")
+      .sort({ createdAt: -1 });
 
-    const filtered = tasks.filter(
-      t => t.project && t.project.user.toString() === req.user.id
-    );
-
-    res.json(filtered);
+    res.json(tasks);
   } catch (err) {
+    console.error("Dashboard task fetch error:", err);
     res.status(500).json({ message: "Dashboard task fetch failed" });
   }
 });
@@ -45,7 +43,7 @@ router.get("/", auth, async (req, res) => {
     const tasks = await Task.find({
       project: projectId,
       user: req.user.id,
-    });
+    }).sort({ createdAt: -1 });
 
     res.json(tasks);
   } catch (err) {
@@ -56,7 +54,7 @@ router.get("/", auth, async (req, res) => {
 /* CREATE TASK + ACTIVITY */
 router.post("/", auth, async (req, res) => {
   try {
-    const { title, projectId } = req.body;
+    const { title, projectId, status, priority, description, dueDate, assignee } = req.body;
 
     if (!title || !projectId) {
       return res.status(400).json({
@@ -67,19 +65,19 @@ router.post("/", auth, async (req, res) => {
     const user = await User.findById(req.user.id);
 
     const task = await Task.create({
-      title,
-      status: req.body.status || "todo",
-      priority: req.body.priority || "medium",
-      description: req.body.description,
-      dueDate: req.body.dueDate,
-      assignee: req.body.assignee,
-      project: projectId,   // 🔥 this must exist
+      title: title.trim(),
+      status: status || "todo",
+      priority: priority || "medium",
+      description: description ? description.trim() : "",
+      dueDate: dueDate || "",
+      assignee: assignee ? assignee.trim() : "",
+      project: projectId,
       user: req.user.id,
     });
 
     await Activity.create({
       type: "created",
-      message: "created a new task",
+      message: `created task "${task.title}"`,
       taskTitle: task.title,
       projectId: task.project,
       taskId: task._id,
@@ -91,18 +89,15 @@ router.post("/", auth, async (req, res) => {
     });
 
     res.status(201).json(task);
-
   } catch (err) {
     console.error("TASK CREATE ERROR:", err);
     res.status(500).json({ error: err.message });
   }
 });
 
-
 /* UPDATE TASK */
 router.patch("/:id", auth, async (req, res) => {
   try {
-
     const oldTask = await Task.findOne({
       _id: req.params.id,
       user: req.user.id,
@@ -114,49 +109,45 @@ router.patch("/:id", auth, async (req, res) => {
 
     const updatedTask = await Task.findOneAndUpdate(
       { _id: req.params.id, user: req.user.id },
-      req.body,
+      { $set: req.body },
       { new: true }
     );
 
-    // ✅ Get logged in user
     const user = await User.findById(req.user.id);
 
     let type = "updated";
-    let message = "updated the task";
+    let message = `updated task "${updatedTask.title}"`;
 
     if (req.body.status && req.body.status !== oldTask.status) {
       if (req.body.status === "done") {
         type = "completed";
-        message = "completed the task";
-      } else {
-        message = "moved task to In Progress";
+        message = `completed task "${updatedTask.title}"`;
+      } else if (req.body.status === "in-progress") {
+        message = `moved "${updatedTask.title}" to In Progress`;
+      } else if (req.body.status === "todo") {
+        message = `moved "${updatedTask.title}" to To Do`;
       }
+    } else if (req.body.priority && req.body.priority !== oldTask.priority) {
+      message = `changed priority of "${updatedTask.title}" to ${req.body.priority}`;
+    } else if (req.body.assignee && req.body.assignee !== oldTask.assignee) {
+      type = "assigned";
+      message = `assigned "${updatedTask.title}" to ${req.body.assignee}`;
     }
 
-    if (req.body.priority && req.body.priority !== oldTask.priority) {
-      message = `changed priority to ${req.body.priority}`;
-    }
-
-    // ✅ CREATE ACTIVITY
     await Activity.create({
       type,
       message,
       taskTitle: updatedTask.title,
       projectId: updatedTask.project,
       taskId: updatedTask._id,
-
       user: {
         id: user._id,
-
-        // ⭐ MAIN FIX HERE
-        name: user.fullName || user.name || user.username,
-
+        name: user.name || user.username,
         avatar: user.avatar || "https://i.pravatar.cc/150",
       },
     });
 
     res.json(updatedTask);
-
   } catch (err) {
     console.error("TASK UPDATE ERROR:", err);
     res.status(500).json({ error: err.message });
@@ -166,7 +157,6 @@ router.patch("/:id", auth, async (req, res) => {
 /* DELETE TASK */
 router.delete("/:id", auth, async (req, res) => {
   try {
-
     const deleted = await Task.findOneAndDelete({
       _id: req.params.id,
       user: req.user.id,
@@ -176,11 +166,14 @@ router.delete("/:id", auth, async (req, res) => {
       return res.status(404).json({ message: "Task not found" });
     }
 
-    res.json({ message: "Task deleted" });
+    // Cleanup associated activities
+    await Activity.deleteMany({ taskId: req.params.id });
 
+    res.json({ message: "Task deleted successfully" });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
 export default router;
+

@@ -115,11 +115,9 @@ function Activity() {
               </div>
 
               <div className="activity-content">
-
                 <p className="activity-text">
-                  {a.message} — <b>{a.taskTitle}</b>
+                  {a.message}
                 </p>
-
               </div>
 
               <div className="activity-time">

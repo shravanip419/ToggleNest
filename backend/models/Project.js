@@ -3,6 +3,8 @@ import mongoose from "mongoose";
 const projectSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
+    description: { type: String, default: "" },
+    color: { type: String, default: "purple" },
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -13,3 +15,4 @@ const projectSchema = new mongoose.Schema(
 );
 
 export default mongoose.model("Project", projectSchema);
+

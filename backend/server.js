@@ -17,19 +17,15 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173",
+      "http://localhost:5174",
+      "http://localhost:3000",
       "https://togglenest-lake.vercel.app"
     ],
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
   })
 );
-
-// Handle preflight requests
-app.use(cors());
-
-
-
 
 app.use(express.json());
 
@@ -40,6 +36,17 @@ app.use("/api/projects", projectRoutes);
 app.use("/api/tasks", taskRoutes);
 app.use("/api/activities", activityRoutes);
 
+// Health check
+app.get("/api/health", (req, res) => {
+  res.json({ status: "ok", timestamp: new Date().toISOString() });
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error("Unhandled Server Error:", err);
+  res.status(500).json({ message: "Internal server error", error: err.message });
+});
+
 const PORT = process.env.PORT || 5000;
 
 const startServer = async () => {
@@ -49,18 +56,16 @@ const startServer = async () => {
     }
 
     await mongoose.connect(process.env.MONGO_URI);
-
-    console.log(" MongoDB connected");
+    console.log("🚀 MongoDB connected successfully");
 
     app.listen(PORT, () => {
-      console.log(` Server running on port ${PORT}`);
+      console.log(`🌐 Server running on port ${PORT}`);
     });
-
   } catch (error) {
-    console.error("Failed to connect to MongoDB:");
-    console.error(error.message);
+    console.error("Failed to connect to MongoDB:", error.message);
     process.exit(1); 
   }
 };
 
 startServer();
+
