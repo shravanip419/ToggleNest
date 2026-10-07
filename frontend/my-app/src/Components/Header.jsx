@@ -2,6 +2,7 @@ import "./Header.css";
 import { useState, useEffect } from "react"; 
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useSocket } from "../context/SocketContext";
 import api from "../api/axios";
 
 const Header = ({ title, subtitle }) => {
@@ -10,6 +11,7 @@ const Header = ({ title, subtitle }) => {
   const [showNotifMenu, setShowNotifMenu] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const { user, logout } = useAuth();
+  const { socket } = useSocket();
   const navigate = useNavigate();
   
   useEffect(() => {
@@ -34,6 +36,29 @@ const Header = ({ title, subtitle }) => {
     }
   }, [user]);
 
+  // Real-time socket activity listener for live notification updates
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleNewActivity = (activity) => {
+      if (!activity) return;
+      setNotifications((prev) => {
+        if (prev.some((n) => n._id === activity._id)) return prev;
+        return [activity, ...prev.slice(0, 4)];
+      });
+    };
+
+    socket.on("activity:new", handleNewActivity);
+    socket.on("task:created", ({ activity }) => activity && handleNewActivity(activity));
+    socket.on("task:updated", ({ activity }) => activity && handleNewActivity(activity));
+
+    return () => {
+      socket.off("activity:new", handleNewActivity);
+      socket.off("task:created", handleNewActivity);
+      socket.off("task:updated", handleNewActivity);
+    };
+  }, [socket]);
+
   // Click outside to close menus
   useEffect(() => {
     const closeMenus = () => {
@@ -43,6 +68,7 @@ const Header = ({ title, subtitle }) => {
     window.addEventListener("click", closeMenus);
     return () => window.removeEventListener("click", closeMenus);
   }, []);
+
 
   const toggleTheme = () => {
     const newTheme = !isDark ? 'dark' : 'light';

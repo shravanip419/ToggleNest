@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api/axios";
+import { useAuth } from "../context/AuthContext";
 import ProjectForm from "./ProjectForm";
+import ManageMembers from "./ManageMembers";
 import "./Projects.css";
 
 const Projects = () => {
@@ -9,8 +11,10 @@ const Projects = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [editingProject, setEditingProject] = useState(null);
+  const [managingProject, setManagingProject] = useState(null);
   const [activeMenuId, setActiveMenuId] = useState(null);
   const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   const fetchProjects = async () => {
@@ -55,9 +59,12 @@ const Projects = () => {
 
   const handleDeleteProject = async (id, e) => {
     e.stopPropagation();
-    if (!window.confirm("Are you sure you want to delete this project? All associated tasks will also be deleted.")) {
+    if (
+      !window.confirm(
+        "Are you sure you want to delete this project? All associated tasks will also be deleted."
+      )
+    )
       return;
-    }
     try {
       await api.delete(`/projects/${id}`);
       setProjects((prev) => prev.filter((p) => p._id !== id));
@@ -74,6 +81,11 @@ const Projects = () => {
       p.description?.toLowerCase().includes(query)
     );
   });
+
+  // Determine if current user is owner of a given project
+  const isOwner = (project) => {
+    return project.user === user?._id || project.myRole === "owner";
+  };
 
   return (
     <div className="projects-container">
@@ -113,8 +125,15 @@ const Projects = () => {
         </div>
       </header>
 
+      {/* Create/Edit Project Modal */}
       {(showForm || editingProject) && (
-        <div className="form-overlay" onClick={() => { setShowForm(false); setEditingProject(null); }}>
+        <div
+          className="form-overlay"
+          onClick={() => {
+            setShowForm(false);
+            setEditingProject(null);
+          }}
+        >
           <div className="form-modal" onClick={(e) => e.stopPropagation()}>
             <h3>{editingProject ? "Edit Project" : "Create New Project"}</h3>
             <ProjectForm
@@ -127,6 +146,15 @@ const Projects = () => {
             />
           </div>
         </div>
+      )}
+
+      {/* Manage Members Modal */}
+      {managingProject && (
+        <ManageMembers
+          project={managingProject}
+          onClose={() => setManagingProject(null)}
+          onMemberChange={fetchProjects}
+        />
       )}
 
       <section className="projects-section">
@@ -147,7 +175,7 @@ const Projects = () => {
                 borderRadius: "8px",
                 border: "none",
                 cursor: "pointer",
-                fontWeight: "500"
+                fontWeight: "500",
               }}
             >
               Create Your First Project
@@ -156,10 +184,13 @@ const Projects = () => {
         ) : (
           <div className="projects-grid">
             {filteredProjects.map((project, index) => {
-              const cardColor = project.color || ["purple", "green", "orange", "blue", "pink"][index % 5];
+              const cardColor =
+                project.color ||
+                ["purple", "green", "orange", "blue", "pink"][index % 5];
               const total = project.totalTasks || 0;
               const completed = project.completedTasks || 0;
               const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
+              const userIsOwner = isOwner(project);
 
               return (
                 <div
@@ -169,80 +200,156 @@ const Projects = () => {
                 >
                   <div className="card-top">
                     <div className="project-icon">
-                      {project.name.toLowerCase().includes("web") ? "🌐" : project.name.toLowerCase().includes("app") ? "📱" : "📁"}
+                      {project.name.toLowerCase().includes("web")
+                        ? "🌐"
+                        : project.name.toLowerCase().includes("app")
+                        ? "📱"
+                        : "📁"}
                     </div>
-                    <div style={{ position: "relative" }}>
-                      <button
-                        className="options-btn"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setActiveMenuId(activeMenuId === project._id ? null : project._id);
-                        }}
-                      >
-                        •••
-                      </button>
-                      {activeMenuId === project._id && (
-                        <div
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                      {/* Shared badge for member projects */}
+                      {project.myRole === "member" && (
+                        <span
                           style={{
-                            position: "absolute",
-                            right: 0,
-                            top: "28px",
-                            backgroundColor: "#ffffff",
-                            boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-                            borderRadius: "8px",
-                            padding: "6px 0",
-                            zIndex: 10,
-                            minWidth: "110px"
+                            fontSize: "10px",
+                            fontWeight: "700",
+                            backgroundColor: "rgba(99,102,241,0.15)",
+                            color: "#6366f1",
+                            padding: "2px 7px",
+                            borderRadius: "10px",
+                            border: "1px solid rgba(99,102,241,0.3)",
                           }}
-                          onClick={(e) => e.stopPropagation()}
                         >
-                          <button
-                            style={{
-                              display: "block",
-                              width: "100%",
-                              textAlign: "left",
-                              padding: "8px 14px",
-                              background: "none",
-                              border: "none",
-                              cursor: "pointer",
-                              fontSize: "13px",
-                              color: "#374151"
-                            }}
-                            onClick={() => {
-                              setEditingProject(project);
-                              setActiveMenuId(null);
-                            }}
-                          >
-                            ✏️ Edit
-                          </button>
-                          <button
-                            style={{
-                              display: "block",
-                              width: "100%",
-                              textAlign: "left",
-                              padding: "8px 14px",
-                              background: "none",
-                              border: "none",
-                              cursor: "pointer",
-                              fontSize: "13px",
-                              color: "#ef4444"
-                            }}
-                            onClick={(e) => handleDeleteProject(project._id, e)}
-                          >
-                            🗑️ Delete
-                          </button>
-                        </div>
+                          Shared
+                        </span>
                       )}
+                      <div style={{ position: "relative" }}>
+                        <button
+                          className="options-btn"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActiveMenuId(
+                              activeMenuId === project._id ? null : project._id
+                            );
+                          }}
+                        >
+                          •••
+                        </button>
+                        {activeMenuId === project._id && (
+                          <div
+                            style={{
+                              position: "absolute",
+                              right: 0,
+                              top: "28px",
+                              backgroundColor: "#ffffff",
+                              boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                              borderRadius: "8px",
+                              padding: "6px 0",
+                              zIndex: 10,
+                              minWidth: "150px",
+                            }}
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            {/* Owner-only actions */}
+                            {userIsOwner && (
+                              <>
+                                <button
+                                  style={{
+                                    display: "block",
+                                    width: "100%",
+                                    textAlign: "left",
+                                    padding: "8px 14px",
+                                    background: "none",
+                                    border: "none",
+                                    cursor: "pointer",
+                                    fontSize: "13px",
+                                    color: "#374151",
+                                  }}
+                                  onClick={() => {
+                                    setEditingProject(project);
+                                    setActiveMenuId(null);
+                                  }}
+                                >
+                                  ✏️ Edit
+                                </button>
+                                <button
+                                  style={{
+                                    display: "block",
+                                    width: "100%",
+                                    textAlign: "left",
+                                    padding: "8px 14px",
+                                    background: "none",
+                                    border: "none",
+                                    cursor: "pointer",
+                                    fontSize: "13px",
+                                    color: "#6366f1",
+                                  }}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setManagingProject(project);
+                                    setActiveMenuId(null);
+                                  }}
+                                >
+                                  👥 Manage Members
+                                </button>
+                                <button
+                                  style={{
+                                    display: "block",
+                                    width: "100%",
+                                    textAlign: "left",
+                                    padding: "8px 14px",
+                                    background: "none",
+                                    border: "none",
+                                    cursor: "pointer",
+                                    fontSize: "13px",
+                                    color: "#ef4444",
+                                  }}
+                                  onClick={(e) => handleDeleteProject(project._id, e)}
+                                >
+                                  🗑️ Delete
+                                </button>
+                              </>
+                            )}
+
+                            {/* Member view — read-only board access */}
+                            {!userIsOwner && (
+                              <button
+                                style={{
+                                  display: "block",
+                                  width: "100%",
+                                  textAlign: "left",
+                                  padding: "8px 14px",
+                                  background: "none",
+                                  border: "none",
+                                  cursor: "pointer",
+                                  fontSize: "13px",
+                                  color: "#374151",
+                                }}
+                                onClick={() => {
+                                  navigate(`/board/${project._id}`);
+                                  setActiveMenuId(null);
+                                }}
+                              >
+                                📋 Open Board
+                              </button>
+                            )}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
+
                   <div className="card-content">
                     <h3>{project.name}</h3>
                     <p>{project.description || "No project description provided."}</p>
                   </div>
+
                   <div className="card-footer">
                     <div className="progress-info">
                       <span>Progress</span>
-                      <span>{completed}/{total} tasks ({percent}%)</span>
+                      <span>
+                        {completed}/{total} tasks ({percent}%)
+                      </span>
                     </div>
                     <div className="progress-bar-bg">
                       <div
@@ -261,4 +368,4 @@ const Projects = () => {
   );
 };
 
-export default Projects;
+export default Projects;

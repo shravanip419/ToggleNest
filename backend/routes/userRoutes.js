@@ -6,6 +6,27 @@ import auth from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
+// Search users by name/email (for member autocomplete)
+router.get("/search", auth, async (req, res) => {
+  try {
+    const { q } = req.query;
+    if (!q || q.trim().length < 2) {
+      return res.status(400).json({ error: "Query must be at least 2 characters" });
+    }
+    const regex = new RegExp(q.trim(), "i");
+    const users = await User.find({
+      _id: { $ne: req.user.id }, // exclude self
+      $or: [{ name: regex }, { email: regex }, { username: regex }],
+    })
+      .select("name email username avatar")
+      .limit(10);
+
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Get current user profile and tasks
 router.get("/me", auth, async (req, res) => {
   try {

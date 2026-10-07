@@ -5,70 +5,71 @@ import auth from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
+// Helper: get all project IDs accessible by user (owner or member)
+const getAccessibleProjectIds = async (userId) => {
+  const projects = await Project.find({
+    $or: [
+      { user: userId },
+      { "members.user": userId },
+    ],
+  }).select("_id");
+  return projects.map((p) => p._id);
+};
+
+// GET ACTIVITIES (optionally filtered by projectId)
 router.get("/", auth, async (req, res) => {
   try {
     const { projectId } = req.query;
+    const accessibleProjectIds = await getAccessibleProjectIds(req.user.id);
 
-    // Get all project IDs owned by this user
-    const userProjects = await Project.find({ user: req.user.id }).select("_id");
-    const userProjectIds = userProjects.map(p => p._id);
-
-    let filter = {
-      $or: [
-        { "user.id": req.user.id },
-        { projectId: { $in: userProjectIds } }
-      ]
-    };
+    let filter;
 
     if (projectId) {
-      filter = {
-        projectId,
-        $or: [
-          { "user.id": req.user.id },
-          { projectId: { $in: userProjectIds } }
-        ]
-      };
+      // Verify user actually has access to this specific project
+      const hasAccess = accessibleProjectIds.some(
+        (id) => id.toString() === projectId.toString()
+      );
+      if (!hasAccess) {
+        return res.status(403).json({ error: "Access denied to this project's activity" });
+      }
+      filter = { projectId };
+    } else {
+      // All activities for all accessible projects
+      filter = { projectId: { $in: accessibleProjectIds } };
     }
 
-    const activities = await Activity
-      .find(filter)
+    const activities = await Activity.find(filter)
       .sort({ createdAt: -1 })
       .populate("projectId", "name")
       .lean();
 
-    const result = activities.map(a => ({
+    const result = activities.map((a) => ({
       ...a,
-      projectName: a.projectId?.name || "General"
+      projectName: a.projectId?.name || "General",
     }));
 
     res.json(result);
-
   } catch (err) {
     console.error("Activity API Error:", err);
     res.status(500).json({ error: err.message });
   }
 });
 
-// GET RECENT ACTIVITIES (for Dashboard)
+// GET RECENT ACTIVITIES (for Dashboard notifications)
 router.get("/recent", auth, async (req, res) => {
   try {
     const limit = Number(req.query.limit) || 5;
-
-    const userProjects = await Project.find({ user: req.user.id }).select("_id");
-    const userProjectIds = userProjects.map(p => p._id);
+    const accessibleProjectIds = await getAccessibleProjectIds(req.user.id);
 
     const activities = await Activity.find({
-      $or: [
-        { "user.id": req.user.id },
-        { projectId: { $in: userProjectIds } }
-      ]
+      projectId: { $in: accessibleProjectIds },
     })
       .sort({ createdAt: -1 })
       .limit(limit)
       .populate("projectId", "name")
       .lean();
 
-    const formatted = activities.map(a => ({
+    const formatted = activities.map((a) => ({
       ...a,
       projectName: a.projectId?.name || "General",
     }));
@@ -81,4 +82,3 @@ router.get("/recent", auth, async (req, res) => {
 });
 
 export default router;
-

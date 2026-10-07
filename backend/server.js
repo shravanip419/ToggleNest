@@ -1,8 +1,10 @@
 import express from "express";
+import http from "http";
 import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
 
+import { initSocket } from "./socket.js";
 import taskRoutes from "./routes/taskRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import projectRoutes from "./routes/projectRoutes.js";
@@ -12,6 +14,10 @@ import userRoutes from "./routes/userRoutes.js";
 dotenv.config();
 
 const app = express();
+const httpServer = http.createServer(app);
+
+// Initialize Socket.IO
+const io = initSocket(httpServer);
 
 app.use(
   cors({
@@ -58,8 +64,8 @@ const startServer = async () => {
     await mongoose.connect(process.env.MONGO_URI);
     console.log("🚀 MongoDB connected successfully");
 
-    app.listen(PORT, () => {
-      console.log(`🌐 Server running on port ${PORT}`);
+    httpServer.listen(PORT, () => {
+      console.log(`🌐 Server with Socket.IO running on port ${PORT}`);
     });
   } catch (error) {
     console.error("Failed to connect to MongoDB:", error.message);
@@ -68,4 +74,5 @@ const startServer = async () => {
 };
 
 startServer();
+
 
